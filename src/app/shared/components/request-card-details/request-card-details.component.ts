@@ -20,6 +20,7 @@ import {
 } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import {JoinRequestComponent} from "..";
 
 @Component({
   selector: 'app-request-card-details',
@@ -98,6 +99,7 @@ export class RequestCardDetailsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       console.log('The dialog was closed');
+      // todo: update list supporter
     });
   }
   openTransDialog(): void {
@@ -124,41 +126,5 @@ export class RequestCardDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.length = this.request?.medias?.length!;
     this.pageEvent!.pageIndex = 0;
-  }
-}
-@Component({
-  selector: 'join',
-  templateUrl: './joinForm.html',
-  providers: [MatFormFieldModule, FormsModule],
-})
-export class JoinRequestComponent {
-  supportTypes: ISupportType[] = [];
-  joinRequest: IJoinRequest = {
-    type: 'user',
-    supporter_id: 'customerc74de9034800804c5be2197f986ec520',
-  };
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    public dialogRef: MatDialogRef<JoinRequestComponent>,
-    private SupportTypesService: SupportTypesService,
-    private UrgentRequestService: UrgentRequestService
-  ) {
-    this.SupportTypesService.findAll().subscribe(
-      (result) => (this.supportTypes = result)
-    );
-  }
-  async onSubmit(data: any) {
-    console.log(data);
-    this.joinRequest.description = data.description;
-    this.joinRequest.support_date = data.support_date;
-    console.log(this.joinRequest);
-    this.UrgentRequestService.join(
-      this.data.request_id,
-      this.joinRequest
-    ).subscribe();
-    this.dialogRef.close();
-  }
-  onNoClick(): void {
-    this.dialogRef.close();
   }
 }

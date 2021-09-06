@@ -1,0 +1,60 @@
+<div class="form" *ngIf="isLogged">
+  <form (submit)="onSubmit(form.value)" [formGroup]="form">
+    <h1><b>Tham gia trợ giúp</b></h1>
+    <mat-form-field appearance="outline">
+      <mat-label>Loại hình giúp đỡ</mat-label>
+      <mat-select formControlName="support_type" required>
+        <mat-option value="ALL">Hỗ trợ hết</mat-option>
+        <mat-option value="PART">Hỗ trợ một phần</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Thời gian dự kiến</mat-label>
+      <input matInput [matDatepicker]="scheduleSupportDate" formControlName="schedule_support_date" required>
+      <mat-datepicker-toggle matSuffix [for]="scheduleSupportDate"></mat-datepicker-toggle>
+      <mat-datepicker #scheduleSupportDate></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Mô tả</mat-label>
+      <textarea matInput cdkTextareaAutosize formControlName="description" placeholder="Thêm mô tả..." rows="4"
+                [required]="form.get('support_type')?.value === 'PART'"></textarea>
+    </mat-form-field>
+    <br>
+
+    <h4>
+      <b>Thông tin người tham gia giúp đỡ</b>
+    </h4>
+    <mat-radio-group aria-label="Loại" formControlName="type" required>
+      <mat-radio-button value="user">Cá nhân</mat-radio-button>
+      <mat-radio-button value="group">Nhóm</mat-radio-button>
+    </mat-radio-group>
+    <br>
+    <br>
+
+    <sos-select-group-volunteer *ngIf="form.get('type')?.value === 'group'" formControlName="supporter_id"
+                                label="Nhóm hỗ trợ" [required]="true"></sos-select-group-volunteer>
+
+    <div fxLayout="row" fxLayoutGap="1rem">
+      <sos-input formControlName="name" type="text" label="Họ và Tên" [required]="true"></sos-input>
+      <sos-input formControlName="phone" type="text" label="Số điện thoại" [required]="true"></sos-input>
+    </div>
+
+    <div>
+      <button type="submit" mat-flat-button style="float: right; border-radius: 5rem;" color="primary"
+              [disabled]="formSubmitting">
+        {{formSubmitting ? 'Đang gửi thông tin' : 'Gửi yêu cầu'}}
+      </button>
+    </div>
+  </form>
+</div>
+<div *ngIf="!isLogged">
+  <section>
+    <div>Bạn cần phải đăng nhập để yêu cầu tham gia hỗ trợ!</div>
+    <br>
+    <div style="text-align: right">
+      <button mat-flat-button style="margin-right: 1rem; border-radius: 5rem" (click)="onCancel()">Hủy</button>
+      <!-- todo: navigate login -->
+      <button mat-flat-button style="border-radius: 5rem;" color="accent">Đăng nhập</button>
+    </div>
+  </section>
+</div>

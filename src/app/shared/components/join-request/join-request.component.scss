@@ -1,0 +1,14 @@
+.form {
+  width: 500px;
+  @media screen and (max-width: 768px) {
+    min-width: 150px;
+  }
+}
+
+mat-radio-button {
+  margin-right: 1rem;
+}
+
+sos-input, mat-form-field {
+  width: 100%;
+}
