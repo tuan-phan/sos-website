@@ -96,7 +96,11 @@ export class RequestFormComponent implements OnInit {
 
   ngOnInit() {
     var l: string = '';
+<<<<<<< HEAD
     let data = this.StorageService.setLocation();
+=======
+    let data = this.StorageService.getLocation();
+>>>>>>> 9726b1ac57b5086926e34d59986ce00e17681e58
     this.setLocation(`${data.lat},${data.lng}`);
     console.log(data);
   }
