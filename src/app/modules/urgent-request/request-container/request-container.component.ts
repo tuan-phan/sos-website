@@ -1,3 +1,4 @@
+import { UrgentRequestService } from 'src/app/core/http/urgent-request.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { RequesterObjectStatusService } from '../../../core/http/requester-object-status.service';
 import { RequestStatusService } from '../../../core/http/request-status.service';
@@ -12,10 +13,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./request-container.component.scss'],
 })
 export class RequestContainerComponent implements OnInit {
-  @Output() searchFilter = new EventEmitter();
   @Input() requests?: ISOSRequest[];
-  @Output() clickedRequest = new EventEmitter<ISOSRequest>();
-  @Output() createClicked = new EventEmitter();
   urgentLevels: IPriorityType[] = [];
   statuses: IRequestStatus[] = [];
   supportTypes: ISupportType[] = [];
@@ -33,6 +31,7 @@ export class RequestContainerComponent implements OnInit {
   };
   constructor(
     private UrgentLevelService: UrgentLevelService,
+    private UrgentRequestService: UrgentRequestService,
     private StorageService: StorageService,
     private SupportTypesService: SupportTypesService,
     private RequestStatusService: RequestStatusService,
@@ -45,7 +44,7 @@ export class RequestContainerComponent implements OnInit {
   selectPriority(type: string, $event: any) {
     this.select($event);
     const index: number = this.filterObject.priority_type?.indexOf(type)!;
-    console.log(index);
+
     if (index != -1 && index != undefined)
       this.filterObject.priority_type?.splice(index, 1);
     else this.filterObject.priority_type?.push(type);
@@ -58,7 +57,7 @@ export class RequestContainerComponent implements OnInit {
   selectSupportType(type: string, $event: any) {
     this.select($event);
     const index: number = this.filterObject.support_types?.indexOf(type)!;
-    console.log(index);
+
     if (index != -1 && index != undefined)
       this.filterObject.support_types?.splice(index, 1);
     else this.filterObject.support_types?.push(type);
@@ -67,7 +66,7 @@ export class RequestContainerComponent implements OnInit {
   selectStatus(type: string, $event: any) {
     this.select($event);
     const index: number = this.filterObject.status?.indexOf(type)!;
-    console.log(index);
+
     if (index != -1 && index != undefined)
       this.filterObject.status?.splice(index, 1);
     else this.filterObject.status?.push(type);
@@ -76,7 +75,7 @@ export class RequestContainerComponent implements OnInit {
   selectObject(type: string, $event: any) {
     this.select($event);
     const index: number = this.filterObject.object_status?.indexOf(type)!;
-    console.log(index);
+
     if (index != -1 && index != undefined)
       this.filterObject.object_status?.splice(index, 1);
     else this.filterObject.object_status?.push(type);
@@ -98,20 +97,18 @@ export class RequestContainerComponent implements OnInit {
       support_types: this.filterObject.support_types?.toString(),
       priority_type: this.filterObject.priority_type?.toString(),
     };
-    console.log(obj);
-    this.searchFilter.emit(obj);
+    this.UrgentRequestService.search(obj).subscribe((result) => {
+      this.requests = result;
+      console.log(result);
+    });
   }
+
   select($event: any) {
-    // this stops the menu from closing
     $event.stopPropagation();
     $event.preventDefault();
-
-    // in this case, the check box is controlled by adding the .selected class
     if ($event.target) {
       $event.target.classList.toggle('selected');
     }
-
-    // add additional selection logic here.
   }
   fetchInit() {
     this.SupportTypesService.findAll().subscribe((result) => {
@@ -123,14 +120,6 @@ export class RequestContainerComponent implements OnInit {
       console.log(result);
     });
   }
-  chooseRequest(request: ISOSRequest) {
-    this.clickedRequest.emit(request);
-    console.log(request);
-  }
-  createClick() {
-    this.createClicked.emit();
-  }
-
   color = {
     accent: 'accent',
     primary: 'primary',
@@ -155,7 +144,7 @@ export class RequestContainerComponent implements OnInit {
 
   ngOnInit(): void {
     console.log(this.requests);
-    let data = this.StorageService.getLocation();
+    let data = this.StorageService.setLocation();
     this.filterObject.lat_position = data.lat?.toString();
     this.filterObject.long_position = data.lng?.toString();
   }

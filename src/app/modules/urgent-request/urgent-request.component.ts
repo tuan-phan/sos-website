@@ -29,25 +29,22 @@ export class UrgentRequestComponent implements OnInit {
     private SupportTypesService: SupportTypesService,
     private RequesterObjectStatusService: RequesterObjectStatusService,
     private StorageService: StorageService
-  ) {
-    this.user = StorageService.userInfo;
-    this.fetchInit();
-  }
+  ) {}
   fetchInit() {
     this.UrgentRequestService.findAll().subscribe((result) => {
       this.requests = result;
       console.log(result);
     });
     if (this.user != null) {
-      this.UrgentRequestService.getByRequesterId(this.user.user_id).subscribe((result) => {
+      this.UrgentRequestService.getByRequesterId(this.user.id).subscribe((result) => {
         this.userCreatedRequests = result;
         console.log(result);
       });
-      this.UrgentRequestService.getJoinedRequests(this.user.user_id).subscribe((result) => {
+      this.UrgentRequestService.getJoinedRequests(this.user.id).subscribe((result) => {
         this.joinedRequests = result;
         console.log(result);
       });
-      this.user.groups.forEach((group:any) => {
+      this.user.groups.forEach((group: any) => {
         this.UrgentRequestService.getJoinedRequests(group.id).subscribe((result) => {
           this.groupSuggested = [...this.groupSuggested, ...result]
           console.log(result);
@@ -56,14 +53,7 @@ export class UrgentRequestComponent implements OnInit {
 
     }
   }
-  searchRequest(data: any) {
-    console.log(data);
-    this.UrgentRequestService.search(data).subscribe((result) => {
-      this.requests = result;
-      console.log(result);
-    });
-  }
-  openFormDialog(): void {
+  openCreateForm(): void {
     const dialogRef = this.dialog.open(RequestFormComponent, {
       width: 'auto',
       data: {},
@@ -74,33 +64,8 @@ export class UrgentRequestComponent implements OnInit {
       console.log(result);
     });
   }
-
-  chooseRequest(request: ISOSRequest) {
-    const dialogRef = this.dialog.open(RequestCardDetailsComponent, {
-      width: '100vw',
-      height: '100vh',
-      data: request,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('The dialog was closed');
-      console.log(result);
-    });
-  }
-  setLocation() {
-    let location = localStorage.getItem('location');
-    if (!location) {
-      navigator.geolocation.getCurrentPosition(function (position) {
-        let lat = position.coords.latitude;
-        let long = position.coords.longitude;
-        localStorage.setItem(
-          'location',
-          JSON.stringify({ lat: lat, lng: long })
-        );
-      });
-    }
-  }
   ngOnInit(): void {
-    this.setLocation();
+    this.user = this.StorageService.userInfo;
+    this.fetchInit();
   }
 }

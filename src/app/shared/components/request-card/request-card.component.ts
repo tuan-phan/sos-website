@@ -6,12 +6,14 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
   styleUrls: ['./request-card.component.scss'],
 })
 export class RequestCardComponent implements OnInit {
-  @Input() request?: ISOSRequest = {};
-  @Input() type?: string = '';
+  @Input() request?: ISOSRequest;
+  @Input() type?: String;
   mapPriority = new Map();
   mapStatus = new Map();
-  @Output() clickedRequest = new EventEmitter<ISOSRequest>();
   constructor() {
+
+  }
+  ngOnInit(): void {
     this.mapPriority.set('high', 'Rất nguy cấp');
     this.mapPriority.set('normal', 'Nguy cấp');
     this.mapPriority.set('', 'Nguy cấp');
@@ -19,9 +21,4 @@ export class RequestCardComponent implements OnInit {
     this.mapStatus.set('waiting', 'Đang chờ hỗ trợ');
     this.mapStatus.set('supporting', 'Đang được hỗ trợ');
   }
-  chooseRequest(request: ISOSRequest) {
-    this.clickedRequest.emit(request);
-    console.log(request);
-  }
-  ngOnInit(): void {}
 }

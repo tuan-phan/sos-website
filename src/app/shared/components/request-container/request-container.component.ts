@@ -9,13 +9,14 @@ import { RequestCardDetailsComponent } from '../request-card-details/request-car
 })
 export class RequestContainerComponent implements OnInit {
   @Input() requests?: ISOSRequest[];
+  @Input() type?: String;
   constructor(
     public dialog: MatDialog
   ) {
 
   }
   ngOnInit(): void {
-    throw new Error('Method not implemented.');
+   
   }
 
   chooseRequest(request: ISOSRequest) {

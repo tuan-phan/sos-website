@@ -5,7 +5,25 @@ import { ConstantsService } from '../../shared/constant/constants.service';
   providedIn: 'root',
 })
 export class StorageService {
-  constructor(private constant: ConstantsService) {}
+  constructor(private constant: ConstantsService) { }
+  public get location(): any | undefined {
+    let result = localStorage.getItem('location');
+    if (result) {
+      return JSON.parse(result);
+    }
+    return;
+  }
+  public setLocation(): any {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      let lat = position.coords.latitude;
+      let long = position.coords.longitude;
+      localStorage.setItem(
+        'location',
+        JSON.stringify({ lat: lat, lng: long })
+      );
+    });
+    return this.getLocation();
+  }
 
   public getLocation(): any {
     let location = localStorage.getItem('location');
