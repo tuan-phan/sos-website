@@ -1,7 +1,9 @@
-import { Input } from '@angular/core';
+import { Input, ViewChild } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { MatStepper } from '@angular/material/stepper';
+import { finalize } from 'rxjs/operators';
+import { ResetPasswordService } from 'src/app/core/http/reset-password.service';
 
 @Component({
   selector: 'app-reset-password-frame',
@@ -9,43 +11,64 @@ import { Router } from '@angular/router';
   styleUrls: ['./reset-password-frame.component.scss']
 })
 export class ResetPasswordFrameComponent implements OnInit {
-  formGroup!: FormGroup;
+  phoneFormGroup!: FormGroup;
+  otpFormGroup!: FormGroup;
   hide = true;
   isShow: boolean = false;
-  regex = '(84|0[3|5|7|8|9])+([0-9]{8})';
+  phoneRegex = '(84|0[3|5|7|8|9])+([0-9]{8})';
+  otpRegex = '([0-9]{4})';
   @Input() isDialog: boolean = true;
+  @ViewChild('stepper') private stepper!: MatStepper;
+
+  private otp: string = '';
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router
+    private resetPasswordService: ResetPasswordService,
   ) { }
 
   ngOnInit(): void {
-    this.createForm();
+    this.createForms();
   }
 
-  createForm() {
-    this.formGroup = this.formBuilder.group({
-      numberphone: ['', [Validators.required, Validators.pattern(this.regex)]],
+  createForms() {
+    this.phoneFormGroup = this.formBuilder.group({
+      phoneNumber: ['', [Validators.required, Validators.pattern(this.phoneRegex)]],
+    });
+    this.otpFormGroup = this.formBuilder.group({
+      otp: ['', [Validators.required, Validators.pattern(this.otpRegex)]],
     });
   }
 
-  onSubmit(values: { numberphone: string; password: string }) {
-    // TODO: call reset password service / API
+  requestOTP(values: { phoneNumber: string }) {
+    console.log({ values });
+    this.resetPasswordService.forgotPassword(values.phoneNumber).pipe(
+      // TODO only go to next step if success
+      finalize(() => this.goToNextStep())
+    ).subscribe(res => {
+      console.log(res);
+    }, console.error);
+  }
+
+  confirmOTP(values: { otp: string }) {
+    console.log({ values });
+    this.goToNextStep();
   }
 
   getError(el: any) {
     switch (el) {
       case 'phone':
-        if (this.formGroup.get('numberphone')?.hasError('required')) {
+        if (this.phoneFormGroup.get('phoneNumber')?.hasError('required')) {
           return 'Chưa nhập số điện thoại';
-        } else if (this.formGroup.get('numberphone')?.hasError('pattern')) {
+        } else if (this.phoneFormGroup.get('phoneNumber')?.hasError('pattern')) {
           return 'Số điện thoại không đúng';
         }
         break;
-      case 'pass':
-        if (this.formGroup.get('password')?.hasError('required')) {
-          return 'Chưa nhập mật khẩu';
+      case 'otp':
+        if (this.otpFormGroup.get('otp')?.hasError('required')) {
+          return 'Chưa nhập OTP';
+        } else if (this.otpFormGroup.get('otp')?.hasError('pattern')) {
+          return 'OTP không đúng';
         }
         break;
       default:
@@ -53,6 +76,14 @@ export class ResetPasswordFrameComponent implements OnInit {
     }
 
     return '';
+  }
+
+  goToNextStep() {
+    this.stepper.next();
+  }
+
+  goToPreviousStep() {
+    this.stepper.previous();
   }
 
 }
